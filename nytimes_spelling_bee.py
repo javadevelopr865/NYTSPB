@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Jan 25 08:25:06 2020
+# Last Modified: Sat Jan 25 08:39:37 2020
 #
 # Author: samolof
 #
@@ -81,14 +81,16 @@ def getPage(url):
 
 def good(word):
     
-    global score, totalScore 
+    global score, totalScore, cheatFlag 
 
     if len(set(word)) == 7:
         pangrams.append(word)
         print 'Pangram!'
     foundwords.append(word)
-    tmpscore= getScore(word)
-    score += tmpscore
+
+    if not cheatFlag:
+        tmpscore= getScore(word)
+        score += tmpscore
     
     print "+%d Total:%d" % (tmpscore,score)
 
@@ -141,16 +143,16 @@ foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1
 letters = centerLetter = ''
 today = datetime.date.today().isoformat()
 misses = 0
-printPerformanceFlag = False
+cheatFlag = False
 
 def printValid(): 
     print "Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter)
 
 def printPerformance():
-    global misses, printPerformanceFlag
-    if not printPerformanceFlag:
+    global misses , cheatFlag
+    if cheatFlag == False:
         print 'Your performance: %d%%' % (len(foundwords)/(len(foundwords) + misses + 0.) * 100)
-    printPeformanceFlag = True
+        cheatFlag = True
 
 if __name__ == '__main__':
     print 'Loading answers ...'
