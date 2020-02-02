@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sun Feb  2 07:03:04 2020
+# Last Modified: Sun Feb  2 08:10:18 2020
 #
 # Author: samolof
 #
@@ -18,6 +18,7 @@
 ##################################################################
 import re, urllib, random, sys, json
 import datetime, tempfile
+from collections import Counter
 
 webster_api_key="bd97ee11-3ad3-45f5-8a5d-f40d363bdb43"
 webthster_api_key="ad38668c-e027-4292-9ce3-f5f3d2880c72"
@@ -38,12 +39,13 @@ R to restart,
 q to exit"""
 
 strify = lambda l: [str(s) for s in l]
+divide_list = lambda l,n:[l[i:i+n] for i in xrange(0,len(l),n)]
 
 score_commentary = { 
         .4 :'Great.',
         .5 : 'Amazing!',
         .7 : 'NYTimes',
-        .90: 'Genius!'
+        .90: '!!Genius!!'
 }
 
 
@@ -85,7 +87,7 @@ def good(word):
 
     if len(set(word)) == 7:
         pangrams.append(word)
-        print 'Pangram!'
+        sleepyprint('Pangram!')
     foundwords.append(word)
 
     tmpscore= getScore(word)
@@ -153,11 +155,8 @@ def printValid():
     print "Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter)
 
 def printPerformance():
-    #global misses , cheatFlag
     global misses
-    #if cheatFlag == False:
-    print 'Your performance: %d%%' % (len(foundwords)/(len(foundwords) + misses + 0.) * 100)
-    #cheatFlag = True
+    sleepyprint('Your performance: %d%%' % (len(foundwords)/(len(foundwords) + misses + 0.) * 100))
 
 if __name__ == '__main__':
     print 'Loading answers ...'
@@ -205,7 +204,16 @@ if __name__ == '__main__':
             random.shuffle(letters)
             printValid()
         elif word == '9':
-            print "You've found %d/%d words" % (len(foundwords), len(answers))
+            print "You've found %d/%d words:" % (len(foundwords), len(answers))
+            answerlc = Counter([w[0] for w in answers])
+            foundlc = Counter([w[0] for w in foundwords])
+          
+            for grouped_letters in divide_list(answerlc.keys(), 3):
+                s = "\t\t".join(["%s: %d/%d" %(l.upper(), foundlc[l],answerlc[l]) for l in grouped_letters] )
+                print s
+                #for letter in grouped_letters:
+                #    print "%s: %d/%d" % ( letter.upper(), foundlc[letter], answerlc[letter] )
+
         elif word == '8900':
             cheatFlag=True
             print [w for w in answers if w not in foundwords]
