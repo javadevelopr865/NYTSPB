@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Jan 25 08:39:37 2020
+# Last Modified: Sun Feb  2 07:03:04 2020
 #
 # Author: samolof
 #
@@ -88,9 +88,13 @@ def good(word):
         print 'Pangram!'
     foundwords.append(word)
 
-    if not cheatFlag:
-        tmpscore= getScore(word)
-        score += tmpscore
+    tmpscore= getScore(word)
+    
+    if cheatFlag:
+        print "%d!" % (tmpscore)
+        return
+
+    score += tmpscore
     
     print "+%d Total:%d" % (tmpscore,score)
 
@@ -149,10 +153,11 @@ def printValid():
     print "Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter)
 
 def printPerformance():
-    global misses , cheatFlag
-    if cheatFlag == False:
-        print 'Your performance: %d%%' % (len(foundwords)/(len(foundwords) + misses + 0.) * 100)
-        cheatFlag = True
+    #global misses , cheatFlag
+    global misses
+    #if cheatFlag == False:
+    print 'Your performance: %d%%' % (len(foundwords)/(len(foundwords) + misses + 0.) * 100)
+    #cheatFlag = True
 
 if __name__ == '__main__':
     print 'Loading answers ...'
@@ -202,10 +207,10 @@ if __name__ == '__main__':
         elif word == '9':
             print "You've found %d/%d words" % (len(foundwords), len(answers))
         elif word == '8900':
-            printPerformance()
+            cheatFlag=True
             print [w for w in answers if w not in foundwords]
         elif word == '8901':
-            printPerformance()
+            cheatFlag=True
             print answers
         elif word == '88':
             wd=random.choice([w for w in answers if w not in foundwords])
@@ -217,7 +222,7 @@ if __name__ == '__main__':
         elif word == 'r': foundwords = []
         #elif word == 't': print "Total possible score %d" % getTotalScore(answers)
         elif word == 'q': 
-
+            printPerformance()
             with open(puz_file, 'w') as outfile:
                 puzzle = {'date': today, 'answers': answers, 
                         'centerLetter': centerLetter, 'letters' : letters, 'foundwords':foundwords}
@@ -226,7 +231,8 @@ if __name__ == '__main__':
 
             sys.exit(0)
         else:
-            misses += 1
+            if not cheatFlag:
+                misses += 1
     
     with open(puz_file,'w') as outfile:
         outfile.write('')
