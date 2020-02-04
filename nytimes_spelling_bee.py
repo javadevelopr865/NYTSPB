@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sun Feb  2 08:10:18 2020
+# Last Modified: Tue Feb  4 05:32:29 2020
 #
 # Author: samolof
 #
@@ -85,16 +85,17 @@ def good(word):
     
     global score, totalScore, cheatFlag 
 
-    if len(set(word)) == 7:
-        pangrams.append(word)
-        sleepyprint('Pangram!')
-    foundwords.append(word)
 
     tmpscore= getScore(word)
     
     if cheatFlag:
         print "%d!" % (tmpscore)
         return
+
+    if len(set(word)) == 7:
+        pangrams.append(word)
+        sleepyprint('Pangram!')
+    foundwords.append(word)
 
     score += tmpscore
     
@@ -145,7 +146,7 @@ def getRemotePuzzle():
 
 
 
-foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1
+foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=None
 letters = centerLetter = ''
 today = datetime.date.today().isoformat()
 misses = 0
@@ -154,9 +155,15 @@ cheatFlag = False
 def printValid(): 
     print "Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter)
 
+def didCheat():
+    global performance
+    cheatFlag=True
+    performance = len(foundwords)/( len(foundwords) + misses + 0.)  * 100
+
 def printPerformance():
-    global misses
-    sleepyprint('Your performance: %d%%' % (len(foundwords)/(len(foundwords) + misses + 0.) * 100))
+    global misses, performance
+    performance = performance or len(foundwords)/( len(foundwords) + misses + 0.) * 100
+    sleepyprint('Your performance: %d%%' % (performance))
 
 if __name__ == '__main__':
     print 'Loading answers ...'
@@ -209,16 +216,15 @@ if __name__ == '__main__':
             foundlc = Counter([w[0] for w in foundwords])
           
             for grouped_letters in divide_list(answerlc.keys(), 3):
-                s = "\t\t".join(["%s: %d/%d" %(l.upper(), foundlc[l],answerlc[l]) for l in grouped_letters] )
+                s = "\t\t|\t\t".join(["%s: %3d / %3d" %(l.upper(), foundlc[l],answerlc[l]) for l in grouped_letters] )
                 print s
-                #for letter in grouped_letters:
-                #    print "%s: %d/%d" % ( letter.upper(), foundlc[letter], answerlc[letter] )
+
 
         elif word == '8900':
-            cheatFlag=True
+            didCheat() 
             print [w for w in answers if w not in foundwords]
         elif word == '8901':
-            cheatFlag=True
+            didCheat()
             print answers
         elif word == '88':
             wd=random.choice([w for w in answers if w not in foundwords])
