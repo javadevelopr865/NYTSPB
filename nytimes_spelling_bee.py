@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Tue Feb  4 05:32:29 2020
+# Last Modified: Wed Feb  5 10:08:10 2020
 #
 # Author: samolof
 #
@@ -89,7 +89,7 @@ def good(word):
     tmpscore= getScore(word)
     
     if cheatFlag:
-        print "%d!" % (tmpscore)
+        print "%d, Total:%d" % (tmpscore,score)
         return
 
     if len(set(word)) == 7:
@@ -156,7 +156,7 @@ def printValid():
     print "Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter)
 
 def didCheat():
-    global performance
+    global performance, cheatFlag
     cheatFlag=True
     performance = len(foundwords)/( len(foundwords) + misses + 0.)  * 100
 
