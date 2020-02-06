@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Wed Feb  5 10:08:10 2020
+# Last Modified: Thu Feb  6 06:57:42 2020
 #
 # Author: samolof
 #
@@ -86,6 +86,7 @@ def good(word):
     global score, totalScore, cheatFlag 
 
 
+    foundwords.append(word)
     tmpscore= getScore(word)
     
     if cheatFlag:
@@ -95,7 +96,6 @@ def good(word):
     if len(set(word)) == 7:
         pangrams.append(word)
         sleepyprint('Pangram!')
-    foundwords.append(word)
 
     score += tmpscore
     
