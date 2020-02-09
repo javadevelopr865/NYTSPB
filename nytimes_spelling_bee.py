@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Thu Feb  6 06:57:42 2020
+# Last Modified: Sat Feb  8 07:46:32 2020
 #
 # Author: samolof
 #
@@ -62,7 +62,6 @@ def getScore(word):
 import time
 def sleepyprint(wd, t=0.045):
     for w in wd:
-        #print(w,end='')
        sys.stdout.write(w)
        sys.stdout.flush()
        time.sleep(t)
@@ -89,13 +88,13 @@ def good(word):
     foundwords.append(word)
     tmpscore= getScore(word)
     
-    if cheatFlag:
-        print "%d, Total:%d" % (tmpscore,score)
-        return
-
     if len(set(word)) == 7:
         pangrams.append(word)
         sleepyprint('Pangram!')
+    
+    if cheatFlag:
+        print "%d, Total:%d" % (tmpscore,score)
+        return
 
     score += tmpscore
     
@@ -162,8 +161,9 @@ def didCheat():
 
 def printPerformance():
     global misses, performance
-    performance = performance or len(foundwords)/( len(foundwords) + misses + 0.) * 100
-    sleepyprint('Your performance: %d%%' % (performance))
+    if len(foundwords) > 0:
+        performance = performance or len(foundwords)/( len(foundwords) + misses + 0.) * 100
+        sleepyprint('Your performance: %d%%' % (performance))
 
 if __name__ == '__main__':
     print 'Loading answers ...'
@@ -215,7 +215,7 @@ if __name__ == '__main__':
             answerlc = Counter([w[0] for w in answers])
             foundlc = Counter([w[0] for w in foundwords])
           
-            for grouped_letters in divide_list(answerlc.keys(), 3):
+            for grouped_letters in divide_list(answerlc.keys(), 2):
                 s = "\t\t|\t\t".join(["%s: %3d / %3d" %(l.upper(), foundlc[l],answerlc[l]) for l in grouped_letters] )
                 print s
 
