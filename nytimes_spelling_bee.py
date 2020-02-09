@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Feb  8 07:46:32 2020
+# Last Modified: Sun Feb  9 08:54:12 2020
 #
 # Author: samolof
 #
@@ -19,6 +19,7 @@
 import re, urllib, random, sys, json
 import datetime, tempfile
 from collections import Counter
+from string import ascii_lowercase
 
 webster_api_key="bd97ee11-3ad3-45f5-8a5d-f40d363bdb43"
 webthster_api_key="ad38668c-e027-4292-9ce3-f5f3d2880c72"
@@ -34,6 +35,7 @@ help="""Type 0 for letters,
 88 for a hint,
 8900 to see words not found, 
 8901 to see complete solution,
+%% to enable spell check,
 h/H for help,
 R to restart,
 q to exit"""
@@ -48,6 +50,23 @@ score_commentary = {
         .90: '!!Genius!!'
 }
 
+def getPage(url):
+    try:
+        print '...'
+        page = urllib.urlopen(url) 
+        page = page.read()
+        return page
+    except:
+        print "Couldn't load %s" % (url)
+        return None
+
+def _edit(word):
+    splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+    deletes =  [L + R[1:] for L,R in splits if R]
+    transposes = [L + R[1] + R[0] + R[2:] for L,R in splits if len(R) > 1]
+    replaces = [L+ c + R[1:] for L,R in splits if R for c in ascii_lowercase]
+    inserts = [L + c + R for L,R in splits for c in ascii_lowercase]
+    return set(deletes + transposes + replaces + inserts)
 
 
 def getTotalScore(lst):
@@ -68,15 +87,6 @@ def sleepyprint(wd, t=0.045):
     print
 
 
-def getPage(url):
-    try:
-        print '...'
-        page = urllib.urlopen(url) 
-        page = page.read()
-        return page
-    except:
-        print "Couldn't load %s" % (url)
-        return None
 
 
 
@@ -113,21 +123,10 @@ def good(word):
             break
 
 
-
-
-def getPuzzle():
-        with open(puz_file, 'r') as input:
-            puzzle = json.load(input)
-            if puzzle['date'] == today:
-                a = strify(puzzle['answers'])
-                cl = str(puzzle['centerLetter'])
-                ltrs = strify(puzzle['letters'])
-                fwords = strify(puzzle['foundwords'])
-
-
-                return a, cl, ltrs, fwords
-        
-        raise Exception('')
+def spellCheck(word):
+    global answers
+    candidates = list(set(w for w in _edit(word) if w in answers))
+    return len(candidates) > 0 and candidates.pop() or None
 
 def getRemotePuzzle():
     page= getPage('https://www.nytimes.com/puzzles/spelling-bee')
@@ -144,12 +143,26 @@ def getRemotePuzzle():
     return a, cl, ltrs
 
 
+def getPuzzle():
+        with open(puz_file, 'r') as input:
+            puzzle = json.load(input)
+            if puzzle['date'] == today:
+                a = strify(puzzle['answers'])
+                cl = str(puzzle['centerLetter'])
+                ltrs = strify(puzzle['letters'])
+                fwords = strify(puzzle['foundwords'])
+
+
+                return a, cl, ltrs, fwords
+        
+        raise Exception('')
+
 
 foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=None
 letters = centerLetter = ''
 today = datetime.date.today().isoformat()
 misses = 0
-cheatFlag = False
+cheatFlag = spellCheckFlag = False
 
 def printValid(): 
     print "Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter)
@@ -233,8 +246,14 @@ if __name__ == '__main__':
             print '.' * len(xrange(0,indices[0])) + wd[slice(*indices)] + '.' * len(xrange(indices[1],len(wd)))
         elif word == 'h':
             print help
-        elif word == 'r': foundwords = []
+        elif word == 'r': foundwords = []; totalScore = 1
         #elif word == 't': print "Total possible score %d" % getTotalScore(answers)
+        elif word == '%%': 
+            spellCheckFlag = not spellCheckFlag
+            if spellCheckFlag:
+                print "Spell Check is enabled."
+            else:
+                print "Spell Check is now turned off."
         elif word == 'q': 
             printPerformance()
             with open(puz_file, 'w') as outfile:
@@ -245,8 +264,22 @@ if __name__ == '__main__':
 
             sys.exit(0)
         else:
-            if not cheatFlag:
+            if spellCheckFlag:
+                correct_word = spellCheck(word)
+                if correct_word:
+                    c= raw_input("Did you mean %s? (Y/N):\n" % correct_word)
+                    if c.strip().lower() == 'y':
+                        if correct_word not in foundwords: 
+                            good(correct_word)
+                        else:
+                            print 'Already found'
+                    else:
+                        misses += 1
+                else:
+                    misses +=1
+            else:
                 misses += 1
+
     
     with open(puz_file,'w') as outfile:
         outfile.write('')
