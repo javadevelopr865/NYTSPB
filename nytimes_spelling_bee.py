@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sun Feb  9 08:54:12 2020
+# Last Modified: Sat Feb 29 08:02:40 2020
 #
 # Author: samolof
 #
@@ -12,6 +12,7 @@
 # ToDo:
 #   Async save current game
 #   Url fetch message
+#   Url fetch timeout
 #   Flashing 'Pangram' message (curses?)
 #
 #
@@ -170,7 +171,10 @@ def printValid():
 def didCheat():
     global performance, cheatFlag
     cheatFlag=True
-    performance = len(foundwords)/( len(foundwords) + misses + 0.)  * 100
+    if misses + len(foundwords) > 0:
+        performance = len(foundwords)/( len(foundwords) + misses + 0.)  * 100
+    else:
+        performance=0
 
 def printPerformance():
     global misses, performance
@@ -263,6 +267,8 @@ if __name__ == '__main__':
 
 
             sys.exit(0)
+        elif word = "":
+            continue
         else:
             if spellCheckFlag:
                 correct_word = spellCheck(word)
