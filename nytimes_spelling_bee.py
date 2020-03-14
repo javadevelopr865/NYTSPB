@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Feb 29 08:02:40 2020
+# Last Modified: Sat Mar 14 09:35:55 2020
 #
 # Author: samolof
 #
@@ -19,6 +19,7 @@
 ##################################################################
 import re, urllib, random, sys, json
 import datetime, tempfile
+import math
 from collections import Counter
 from string import ascii_lowercase
 
@@ -121,7 +122,7 @@ def good(word):
                 sleepyprint(comment, 0.1)
             else:
                 sleepyprint(comment, 0.08) 
-            break
+            #break   - was broken when player reached two commentary levels at once
 
 
 def spellCheck(word):
@@ -159,12 +160,6 @@ def getPuzzle():
         raise Exception('')
 
 
-foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=None
-letters = centerLetter = ''
-today = datetime.date.today().isoformat()
-misses = 0
-cheatFlag = spellCheckFlag = False
-
 def printValid(): 
     print "Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter)
 
@@ -181,6 +176,14 @@ def printPerformance():
     if len(foundwords) > 0:
         performance = performance or len(foundwords)/( len(foundwords) + misses + 0.) * 100
         sleepyprint('Your performance: %d%%' % (performance))
+
+
+foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=None
+letters = centerLetter = ''
+today = datetime.date.today().isoformat()
+misses = 0
+cheatFlag = spellCheckFlag = False
+
 
 if __name__ == '__main__':
     print 'Loading answers ...'
@@ -207,6 +210,8 @@ if __name__ == '__main__':
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
+        elif word == 'nytimes':
+            print "%d" % (score - math.ceil(totalScore * 0.7))
         elif word.startswith('*'):
             word = word.split('*')[1]
             if word in answers:
@@ -267,7 +272,7 @@ if __name__ == '__main__':
 
 
             sys.exit(0)
-        elif word = "":
+        elif word == "":
             continue
         else:
             if spellCheckFlag:
