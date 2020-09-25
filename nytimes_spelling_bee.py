@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Mar 14 09:35:55 2020
+# Last Modified: Fri Sep 25 11:23:20 2020
 #
 # Author: samolof
 #
@@ -11,10 +11,9 @@
 #
 # ToDo:
 #   Async save current game
-#   Url fetch message
-#   Url fetch timeout
+#   Url fetch message and timeout
 #   Flashing 'Pangram' message (curses?)
-#
+#   Saved Statistics
 #
 ##################################################################
 import re, urllib, random, sys, json
@@ -34,6 +33,7 @@ puz_file = tempdir + '/' + 'puzzle.json'
 help="""Type 0 for letters, 
 1 to see words found so far, 
 9 for solution count,
+'genius!' to see points to a 'genius' rating,
 88 for a hint,
 8900 to see words not found, 
 8901 to see complete solution,
@@ -49,7 +49,8 @@ score_commentary = {
         .4 :'Great.',
         .5 : 'Amazing!',
         .7 : 'NYTimes',
-        .90: '!!Genius!!'
+        .92: '!!Genius!!',
+        1.0: '!!!QUEEN BEE!!!'
 }
 
 def getPage(url):
@@ -210,8 +211,10 @@ if __name__ == '__main__':
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
-        elif word == 'nytimes':
+        elif word == 'nytimes!':
             print "%d" % (score - math.ceil(totalScore * 0.7))
+        elif word == 'genius!':
+            print "%d" % (score - math.ceil(totalScore * 0.92))
         elif word.startswith('*'):
             word = word.split('*')[1]
             if word in answers:
@@ -227,8 +230,13 @@ if __name__ == '__main__':
                 except: pass
         elif word in foundwords:
             print 'Already found'
-        elif word == '1':
-            print "Found %d words: " % (len(foundwords)), sorted(foundwords)
+        elif word.startswith('1'):
+            if len(word) > 1 and word[1] in letters:
+                _ltr = word[1]
+                _lfoundwords = [w for w in foundwords if w.startswith(_ltr) ]
+                print "Found %d %s... words: " %(len(_lfoundwords), _ltr), sorted(_lfoundwords)
+            elif word == '1':
+                print "Found %d words: " % (len(foundwords)), sorted(foundwords)
         elif word == '0':
             random.shuffle(letters)
             printValid()
