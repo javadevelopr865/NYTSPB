@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Fri Sep 25 11:23:20 2020
+# Last Modified: Thu Oct 22 08:03:06 2020
 #
 # Author: samolof
 #
@@ -31,13 +31,13 @@ tempdir = tempfile.gettempdir()
 puz_file = tempdir + '/' + 'puzzle.json'
 
 help="""Type 0 for letters, 
-1 to see words found so far, 
+1 to see words found so far, 1<LETTER> to see <LETTER> words found so far, 
 9 for solution count,
 'genius!' to see points to a 'genius' rating,
 88 for a hint,
 8900 to see words not found, 
 8901 to see complete solution,
-%% to enable spell check,
+%% to enable/disable spell check,
 h/H for help,
 R to restart,
 q to exit"""
@@ -211,10 +211,12 @@ if __name__ == '__main__':
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
-        elif word == 'nytimes!':
+        elif word == 'nytimes*' or word == '*nytimes':
             print "%d" % (score - math.ceil(totalScore * 0.7))
-        elif word == 'genius!':
+        elif word == 'genius*' or word == '*genius':
             print "%d" % (score - math.ceil(totalScore * 0.92))
+        elif word == 'queenbee*' or word == '*queenbee':
+            print "%d" % (score - totalScore)
         elif word.startswith('*'):
             word = word.split('*')[1]
             if word in answers:
