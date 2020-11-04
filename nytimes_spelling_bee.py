@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Thu Oct 22 08:03:06 2020
+# Last Modified: Wed Nov  4 08:22:56 2020
 #
 # Author: samolof
 #
@@ -27,19 +27,23 @@ webthster_api_key="ad38668c-e027-4292-9ce3-f5f3d2880c72"
 
 webster_url='https://www.dictionaryapi.com/api/v3/references/collegiate/json/'
 
+today = datetime.date.today().isoformat()
 tempdir = tempfile.gettempdir()
 puz_file = tempdir + '/' + 'puzzle.json'
+local_puz_file = today + '.puzzle.json'
 
 help="""Type 0 for letters, 
 1 to see words found so far, 1<LETTER> to see <LETTER> words found so far, 
 9 for solution count,
-'genius!' to see points to a 'genius' rating,
+99 for a breakdown of solution count by letter,
+'genius*' to see points to a 'genius' rating,
 88 for a hint,
 8900 to see words not found, 
 8901 to see complete solution,
 %% to enable/disable spell check,
 h/H for help,
 R to restart,
+s to save puzzle,
 q to exit"""
 
 strify = lambda l: [str(s) for s in l]
@@ -178,10 +182,17 @@ def printPerformance():
         performance = performance or len(foundwords)/( len(foundwords) + misses + 0.) * 100
         sleepyprint('Your performance: %d%%' % (performance))
 
+def savePuzzle(filename, found=False):
+    global answers, centerLetter, letters, foundwords
+    with open(filename, 'w') as outfile:
+                puzzle = {'date': today, 'answers': answers, 
+                        'centerLetter': centerLetter, 'letters' : letters}
+                if found:
+                    puzzle['foundwords'] = foundwords
+                j = json.dump(puzzle, outfile)
 
 foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=None
 letters = centerLetter = ''
-today = datetime.date.today().isoformat()
 misses = 0
 cheatFlag = spellCheckFlag = False
 
@@ -242,14 +253,15 @@ if __name__ == '__main__':
         elif word == '0':
             random.shuffle(letters)
             printValid()
-        elif word == '9':
+        elif word == '9' or word == '99':
             print "You've found %d/%d words:" % (len(foundwords), len(answers))
-            answerlc = Counter([w[0] for w in answers])
-            foundlc = Counter([w[0] for w in foundwords])
-          
-            for grouped_letters in divide_list(answerlc.keys(), 2):
-                s = "\t\t|\t\t".join(["%s: %3d / %3d" %(l.upper(), foundlc[l],answerlc[l]) for l in grouped_letters] )
-                print s
+            if word == '99':
+                answerlc = Counter([w[0] for w in answers])
+                foundlc = Counter([w[0] for w in foundwords])
+              
+                for grouped_letters in divide_list(answerlc.keys(), 2):
+                    s = "\t\t|\t\t".join(["%s: %3d / %3d" %(l.upper(), foundlc[l],answerlc[l]) for l in grouped_letters] )
+                    print s
 
 
         elif word == '8900':
@@ -275,13 +287,14 @@ if __name__ == '__main__':
                 print "Spell Check is now turned off."
         elif word == 'q': 
             printPerformance()
-            with open(puz_file, 'w') as outfile:
-                puzzle = {'date': today, 'answers': answers, 
-                        'centerLetter': centerLetter, 'letters' : letters, 'foundwords':foundwords}
-                j = json.dump(puzzle, outfile)
-
-
+            savePuzzle(puz_file, found=True)
             sys.exit(0)
+
+        elif word == 's':
+            c = raw_input("Save puzzle? Y/N:")
+            if c.strip().lower() == 'y': 
+                savePuzzle(local_puz_file, found=True)
+                #sys.exit(0)
         elif word == "":
             continue
         else:
