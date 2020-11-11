@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Wed Nov  4 08:22:56 2020
+# Last Modified: Sun Nov  8 09:11:20 2020
 #
 # Author: samolof
 #
@@ -158,9 +158,10 @@ def getPuzzle():
                 cl = str(puzzle['centerLetter'])
                 ltrs = strify(puzzle['letters'])
                 fwords = strify(puzzle['foundwords'])
+                perform = int(puzzle['performance'])
 
 
-                return a, cl, ltrs, fwords
+                return a, cl, ltrs, fwords , perform
         
         raise Exception('')
 
@@ -172,7 +173,7 @@ def didCheat():
     global performance, cheatFlag
     cheatFlag=True
     if misses + len(foundwords) > 0:
-        performance = len(foundwords)/( len(foundwords) + misses + 0.)  * 100
+        performance = performance > 0 and performance or len(foundwords)/( len(foundwords) + misses + 0.)  * 100 
     else:
         performance=0
 
@@ -182,13 +183,15 @@ def printPerformance():
         performance = performance or len(foundwords)/( len(foundwords) + misses + 0.) * 100
         sleepyprint('Your performance: %d%%' % (performance))
 
-def savePuzzle(filename, found=False):
-    global answers, centerLetter, letters, foundwords
+def savePuzzle(filename, found=False,perform=False):
+    global answers, centerLetter, letters, foundwords, performance
     with open(filename, 'w') as outfile:
                 puzzle = {'date': today, 'answers': answers, 
                         'centerLetter': centerLetter, 'letters' : letters}
                 if found:
                     puzzle['foundwords'] = foundwords
+                if perform:
+                    puzzle['performance'] = performance
                 j = json.dump(puzzle, outfile)
 
 foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=None
@@ -201,7 +204,7 @@ if __name__ == '__main__':
     print 'Loading answers ...'
 
     try:
-            answers, centerLetter, letters, savedwords = getPuzzle()
+            answers, centerLetter, letters, savedwords, performance = getPuzzle()
             totalScore = getTotalScore(answers)
             
             if len(savedwords) > 0:
@@ -222,11 +225,11 @@ if __name__ == '__main__':
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
-        elif word == 'nytimes*' or word == '*nytimes':
+        elif word == 'nytimes*' or word == '*nytimes*':
             print "%d" % (score - math.ceil(totalScore * 0.7))
-        elif word == 'genius*' or word == '*genius':
+        elif word == 'genius*' or word == '*genius*':
             print "%d" % (score - math.ceil(totalScore * 0.92))
-        elif word == 'queenbee*' or word == '*queenbee':
+        elif word == 'queenbee*' or word == '*queenbee*':
             print "%d" % (score - totalScore)
         elif word.startswith('*'):
             word = word.split('*')[1]
@@ -249,7 +252,7 @@ if __name__ == '__main__':
                 _lfoundwords = [w for w in foundwords if w.startswith(_ltr) ]
                 print "Found %d %s... words: " %(len(_lfoundwords), _ltr), sorted(_lfoundwords)
             elif word == '1':
-                print "Found %d words: " % (len(foundwords)), sorted(foundwords)
+                print "Found %d words: " % (len(foundwords)), [w for w in answers if w in foundwords]
         elif word == '0':
             random.shuffle(letters)
             printValid()
@@ -287,7 +290,7 @@ if __name__ == '__main__':
                 print "Spell Check is now turned off."
         elif word == 'q': 
             printPerformance()
-            savePuzzle(puz_file, found=True)
+            savePuzzle(puz_file, found=True, perform=True)
             sys.exit(0)
 
         elif word == 's':
