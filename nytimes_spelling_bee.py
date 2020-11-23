@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sun Nov  8 09:11:20 2020
+# Last Modified: Wed Nov 11 10:02:58 2020
 #
 # Author: samolof
 #
@@ -247,12 +247,14 @@ if __name__ == '__main__':
         elif word in foundwords:
             print 'Already found'
         elif word.startswith('1'):
-            if len(word) > 1 and word[1] in letters:
-                _ltr = word[1]
-                _lfoundwords = [w for w in foundwords if w.startswith(_ltr) ]
-                print "Found %d %s... words: " %(len(_lfoundwords), _ltr), sorted(_lfoundwords)
-            elif word == '1':
+            if word == '1':
                 print "Found %d words: " % (len(foundwords)), [w for w in answers if w in foundwords]
+            else:
+                word = set(word[1:])
+                for _ltr in word:
+                    _lfoundwords = [w for w in foundwords if w.startswith(_ltr) ]
+                    print "Found %d %s... words: " %(len(_lfoundwords), _ltr), sorted(_lfoundwords)
+
         elif word == '0':
             random.shuffle(letters)
             printValid()
