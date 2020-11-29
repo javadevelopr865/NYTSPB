@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Wed Nov 11 10:02:58 2020
+# Last Modified: Mon Nov 23 09:28:35 2020
 #
 # Author: samolof
 #
@@ -275,11 +275,19 @@ if __name__ == '__main__':
         elif word == '8901':
             didCheat()
             print answers
-        elif word == '88':
-            wd=random.choice([w for w in answers if w not in foundwords])
+        elif word.startswith('88'):
+            wdl = [w for w in answers if w not in foundwords]
+            if len(word) > 2:
+                _l = word[2]
+                wdl = [w for w in wdl if w.startswith(_l)]
+                
+            if wdl == []: continue
+            #wd=random.choice([w for w in answers if w not in foundwords])
+            wd = random.choice(wdl)
             indices = (len(wd) < 6 and (0,3)) or (len(wd) == 6 and (1,4)) or (len(wd) == 7 and (2,5) or (2,7))
             indices = bool(random.getrandbits(2)) and indices or (0, random.randrange(3, len(wd))) 
             print '.' * len(xrange(0,indices[0])) + wd[slice(*indices)] + '.' * len(xrange(indices[1],len(wd)))
+
         elif word == 'h':
             print help
         elif word == 'r': foundwords = []; totalScore = 1
