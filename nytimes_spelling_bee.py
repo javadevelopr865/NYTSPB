@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Mon Nov 23 09:28:35 2020
+# Last Modified: Mon Dec 28 10:49:57 2020
 #
 # Author: samolof
 #
@@ -50,9 +50,8 @@ strify = lambda l: [str(s) for s in l]
 divide_list = lambda l,n:[l[i:i+n] for i in xrange(0,len(l),n)]
 
 score_commentary = { 
-        .4 :'Great.',
-        .5 : 'Amazing!',
-        .7 : 'NYTimes',
+        .5 : 'Great',
+        .7 : 'Amazing!',
         .92: '!!Genius!!',
         1.0: '!!!QUEEN BEE!!!'
 }
@@ -225,8 +224,8 @@ if __name__ == '__main__':
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
-        elif word == 'nytimes*' or word == '*nytimes*':
-            print "%d" % (score - math.ceil(totalScore * 0.7))
+        #elif word == 'nytimes*' or word == '*nytimes*':
+        #    print "%d" % (score - math.ceil(totalScore * 0.7))
         elif word == 'genius*' or word == '*genius*':
             print "%d" % (score - math.ceil(totalScore * 0.92))
         elif word == 'queenbee*' or word == '*queenbee*':
