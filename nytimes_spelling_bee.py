@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # File Name: nytimes_spelling_bee.py
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Mon Dec 28 10:49:57 2020
+# Last Modified: Wed Dec 30 10:50:03 2020
 #
 # Author: samolof
 #
@@ -16,7 +16,7 @@
 #   Saved Statistics
 #
 ##################################################################
-import re, urllib, random, sys, json
+import re, urllib.request, urllib.parse, urllib.error, random, sys, json
 import datetime, tempfile
 import math
 from collections import Counter
@@ -47,23 +47,25 @@ s to save puzzle,
 q to exit"""
 
 strify = lambda l: [str(s) for s in l]
-divide_list = lambda l,n:[l[i:i+n] for i in xrange(0,len(l),n)]
+divide_list = lambda l,n:[l[i:i+n] for i in range(0,len(l),n)]
 
 score_commentary = { 
         .5 : 'Great',
-        .7 : 'Amazing!',
-        .92: '!!Genius!!',
-        1.0: '!!!QUEEN BEE!!!'
+        .7 : 'Amazing',
+        .92: 'Genius',
+        1.0: 'QUEEN BEE!'
 }
+
+ASTERISK=False
 
 def getPage(url):
     try:
-        print '...'
-        page = urllib.urlopen(url) 
-        page = page.read()
+        print('...')
+        page = urllib.request.urlopen(url) 
+        page = page.read().decode('utf-8')
         return page
     except:
-        print "Couldn't load %s" % (url)
+        print("Couldn't load %s" % (url))
         return None
 
 def _edit(word):
@@ -76,7 +78,7 @@ def _edit(word):
 
 
 def getTotalScore(lst):
-    return sum(map(lambda x: getScore(x),lst))
+    return sum([getScore(x) for x in lst])
 
 def getScore(word):
     tmpscore = len(word) > 4 and len(word) or 1
@@ -90,7 +92,7 @@ def sleepyprint(wd, t=0.045):
        sys.stdout.write(w)
        sys.stdout.flush()
        time.sleep(t)
-    print
+    print()
 
 
 
@@ -109,12 +111,12 @@ def good(word):
         sleepyprint('Pangram!')
     
     if cheatFlag:
-        print "%d, Total:%d" % (tmpscore,score)
+        print("%d, Total:%d" % (tmpscore,score))
         return
 
     score += tmpscore
     
-    print "+%d Total:%d" % (tmpscore,score)
+    print("+%d Total:%d" % (tmpscore,score))
 
     pct = round(score/(totalScore + 0.0),2)
 
@@ -122,6 +124,7 @@ def good(word):
     for k in zip( _sk, _sk[1:] + [1.] ):
         if k[0] <= pct <= k[1]:
             comment = score_commentary.pop(k[0])
+            comment = ASTERISK and comment + "*" or comment
             if 'genius' in comment.lower() or 'nytimes' in comment.lower():
                 sleepyprint(comment, 0.1)
             else:
@@ -141,7 +144,7 @@ def getRemotePuzzle():
     cl =re.search(r'(?<=centerLetter":).*?(?=,)',page).group() 
     cl = cl.strip('"').upper()
     if len(a) == 0 or cl == '':
-        print 'Unable to obtain puzzle'
+        print('Unable to obtain puzzle')
         sys.exit(1)
     a = [ a.strip('"') for a in a.split(',')]
     ltrs = list(set(a[0])); random.shuffle(ltrs) 
@@ -151,22 +154,25 @@ def getRemotePuzzle():
 
 def getPuzzle():
         with open(puz_file, 'r') as input:
-            puzzle = json.load(input)
-            if puzzle['date'] == today:
-                a = strify(puzzle['answers'])
-                cl = str(puzzle['centerLetter'])
-                ltrs = strify(puzzle['letters'])
-                fwords = strify(puzzle['foundwords'])
-                perform = int(puzzle['performance'])
+            try:
+                puzzle = json.load(input)
+                if puzzle['date'] == today:
+                    a = strify(puzzle['answers'])
+                    cl = str(puzzle['centerLetter'])
+                    ltrs = strify(puzzle['letters'])
+                    fwords = strify(puzzle['foundwords'])
+                    perform = int(puzzle['performance'])
 
 
-                return a, cl, ltrs, fwords , perform
+                    return a, cl, ltrs, fwords , perform
+            except JSONDecodeError:
+                pass
         
         raise Exception('')
 
 
 def printValid(): 
-    print "Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter)
+    print("Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter))
 
 def didCheat():
     global performance, cheatFlag
@@ -200,14 +206,14 @@ cheatFlag = spellCheckFlag = False
 
 
 if __name__ == '__main__':
-    print 'Loading answers ...'
+    print('Loading answers ...')
 
     try:
             answers, centerLetter, letters, savedwords, performance = getPuzzle()
             totalScore = getTotalScore(answers)
             
             if len(savedwords) > 0:
-                c = raw_input("Saved puzzle exists\nContinue from saved puzzle? Y/N:")
+                c = input("Saved puzzle exists\nContinue from saved puzzle? Y/N:")
                 if c.strip().lower() == 'y': 
                     for word in savedwords:
                         sleepyprint(word)
@@ -217,19 +223,19 @@ if __name__ == '__main__':
             totalScore = getTotalScore(answers)
 
 
-    print help 
+    print(help) 
     printValid()
     while len(foundwords) != len(answers):
-        word = raw_input('>>')
+        word = input('>>')
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
         #elif word == 'nytimes*' or word == '*nytimes*':
         #    print "%d" % (score - math.ceil(totalScore * 0.7))
         elif word == 'genius*' or word == '*genius*':
-            print "%d" % (score - math.ceil(totalScore * 0.92))
+            print("%d" % (score - math.ceil(totalScore * 0.92)))
         elif word == 'queenbee*' or word == '*queenbee*':
-            print "%d" % (score - totalScore)
+            print("%d" % (score - totalScore))
         elif word.startswith('*'):
             word = word.split('*')[1]
             if word in answers:
@@ -240,40 +246,41 @@ if __name__ == '__main__':
                 if page is None: continue
                 j = json.loads(page)
                 try:
-                    print "Def: %s" % ( ",".join(j[0]['shortdef']))
-                    print "%s" % (j[0]['syns'][0]['pt'][0][1])
+                    print("Def: %s" % ( ",".join(j[0]['shortdef'])))
+                    print("%s" % (j[0]['syns'][0]['pt'][0][1]))
                 except: pass
         elif word in foundwords:
-            print 'Already found'
+            print('Already found')
         elif word.startswith('1'):
             if word == '1':
-                print "Found %d words: " % (len(foundwords)), [w for w in answers if w in foundwords]
+                print("Found %d words: " % (len(foundwords)), [w for w in answers if w in foundwords])
             else:
                 word = set(word[1:])
                 for _ltr in word:
                     _lfoundwords = [w for w in foundwords if w.startswith(_ltr) ]
-                    print "Found %d %s... words: " %(len(_lfoundwords), _ltr), sorted(_lfoundwords)
+                    print("Found %d %s... words: " %(len(_lfoundwords), _ltr), sorted(_lfoundwords))
 
         elif word == '0':
             random.shuffle(letters)
             printValid()
         elif word == '9' or word == '99':
-            print "You've found %d/%d words:" % (len(foundwords), len(answers))
+            print("You've found %d/%d words:" % (len(foundwords), len(answers)))
             if word == '99':
+                ASTERISK=True
                 answerlc = Counter([w[0] for w in answers])
                 foundlc = Counter([w[0] for w in foundwords])
               
-                for grouped_letters in divide_list(answerlc.keys(), 2):
+                for grouped_letters in divide_list(list(answerlc.keys()), 2):
                     s = "\t\t|\t\t".join(["%s: %3d / %3d" %(l.upper(), foundlc[l],answerlc[l]) for l in grouped_letters] )
-                    print s
+                    print(s)
 
 
         elif word == '8900':
             didCheat() 
-            print [w for w in answers if w not in foundwords]
+            print([w for w in answers if w not in foundwords])
         elif word == '8901':
             didCheat()
-            print answers
+            print(answers)
         elif word.startswith('88'):
             wdl = [w for w in answers if w not in foundwords]
             if len(word) > 2:
@@ -285,25 +292,25 @@ if __name__ == '__main__':
             wd = random.choice(wdl)
             indices = (len(wd) < 6 and (0,3)) or (len(wd) == 6 and (1,4)) or (len(wd) == 7 and (2,5) or (2,7))
             indices = bool(random.getrandbits(2)) and indices or (0, random.randrange(3, len(wd))) 
-            print '.' * len(xrange(0,indices[0])) + wd[slice(*indices)] + '.' * len(xrange(indices[1],len(wd)))
+            print('.' * len(range(0,indices[0])) + wd[slice(*indices)] + '.' * len(range(indices[1],len(wd))))
 
         elif word == 'h':
-            print help
+            print(help)
         elif word == 'r': foundwords = []; totalScore = 1
         #elif word == 't': print "Total possible score %d" % getTotalScore(answers)
         elif word == '%%': 
             spellCheckFlag = not spellCheckFlag
             if spellCheckFlag:
-                print "Spell Check is enabled."
+                print("Spell Check is enabled.")
             else:
-                print "Spell Check is now turned off."
+                print("Spell Check is now turned off.")
         elif word == 'q': 
             printPerformance()
             savePuzzle(puz_file, found=True, perform=True)
             sys.exit(0)
 
         elif word == 's':
-            c = raw_input("Save puzzle? Y/N:")
+            c = input("Save puzzle? Y/N:")
             if c.strip().lower() == 'y': 
                 savePuzzle(local_puz_file, found=True)
                 #sys.exit(0)
@@ -313,12 +320,12 @@ if __name__ == '__main__':
             if spellCheckFlag:
                 correct_word = spellCheck(word)
                 if correct_word:
-                    c= raw_input("Did you mean %s? (Y/N):\n" % correct_word)
+                    c= input("Did you mean %s? (Y/N):\n" % correct_word)
                     if c.strip().lower() == 'y':
                         if correct_word not in foundwords: 
                             good(correct_word)
                         else:
-                            print 'Already found'
+                            print('Already found')
                     else:
                         misses += 1
                 else:
@@ -330,9 +337,8 @@ if __name__ == '__main__':
     with open(puz_file,'w') as outfile:
         outfile.write('')
     
-    sleepyprint('Excellent!', t=0.1)
-    print 'Found all words'
+    sleepyprint('All words found!', t=0.1)
     printPerformance() 
-    print 'Pangrams: ', pangrams
-    print answers
+    print('Pangrams: ', pangrams)
+    print(answers)
 
