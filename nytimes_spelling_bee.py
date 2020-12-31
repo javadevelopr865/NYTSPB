@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Wed Dec 30 10:50:03 2020
+# Last Modified: Thu Dec 31 11:45:19 2020
 #
 # Author: samolof
 #
@@ -162,12 +162,12 @@ def getPuzzle():
                     ltrs = strify(puzzle['letters'])
                     fwords = strify(puzzle['foundwords'])
                     perform = int(puzzle['performance'])
-
-
-                    return a, cl, ltrs, fwords , perform
-            except JSONDecodeError:
-                pass
+                    asterisk = puzzle['asterisk']
         
+                    return a, cl, ltrs, fwords , perform, asterisk
+            except json.JSONDecodeError:
+                pass
+       
         raise Exception('')
 
 
@@ -186,13 +186,13 @@ def printPerformance():
     global misses, performance
     if len(foundwords) > 0:
         performance = performance or len(foundwords)/( len(foundwords) + misses + 0.) * 100
-        sleepyprint('Your performance: %d%%' % (performance))
+        sleepyprint('Your performance (hits/misses): %d%%' % (performance))
 
 def savePuzzle(filename, found=False,perform=False):
-    global answers, centerLetter, letters, foundwords, performance
+    global answers, centerLetter, letters, foundwords, performance, ASTERISK
     with open(filename, 'w') as outfile:
                 puzzle = {'date': today, 'answers': answers, 
-                        'centerLetter': centerLetter, 'letters' : letters}
+                        'centerLetter': centerLetter, 'letters' : letters, 'asterisk': ASTERISK}
                 if found:
                     puzzle['foundwords'] = foundwords
                 if perform:
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     print('Loading answers ...')
 
     try:
-            answers, centerLetter, letters, savedwords, performance = getPuzzle()
+            answers, centerLetter, letters, savedwords, performance,ASTERISK = getPuzzle()
             totalScore = getTotalScore(answers)
             
             if len(savedwords) > 0:
@@ -218,7 +218,9 @@ if __name__ == '__main__':
                     for word in savedwords:
                         sleepyprint(word)
                         good(word)
-    except:
+    #except:
+    except Exception as e:
+            #print(f"Something went wrong####   {e}") ####
             answers,centerLetter, letters = getRemotePuzzle()
             totalScore = getTotalScore(answers)
 
