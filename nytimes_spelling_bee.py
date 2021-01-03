@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Jan  2 17:28:25 2021
+# Last Modified: Sun Jan  3 11:39:33 2021
 #
 # Author: samolof
 #
@@ -52,8 +52,8 @@ divide_list = lambda l,n:[l[i:i+n] for i in range(0,len(l),n)]
 score_commentary = { 
         .5 : 'Great',
         .7 : 'Amazing',
-        .92: 'Genius',
-        1.0: 'QUEEN BEE!'
+        .92: 'Genius!',
+        1.0: '!!! QUEEN BEE !!!'
 }
 
 ASTERISK=False
@@ -96,6 +96,13 @@ def sleepyprint(wd, t=0.045):
 
 
 
+def printComment(comment):
+    comment = ASTERISK and comment + "*" or comment
+    if 'genius' in comment.lower() or 'nytimes' in comment.lower() :
+        sleepyprint(comment, 0.2)
+    else:
+        sleepyprint(comment, 0.08) 
+
 
 
 def good(word):
@@ -117,19 +124,15 @@ def good(word):
     score += tmpscore
     
     print("+%d Total:%d" % (tmpscore,score))
+    
+    _sk = sorted(scoreDict.keys())
+    for k in zip( _sk, _sk[1:] + [totalScore] ):
+        if k[0] <= score < k[1]:
+            printComment(scoreDict.pop(k[0]))
+        if score == k[1]:
+            scoreDict.pop(k[0])
+            printComment(scoreDict.pop(k[1]))
 
-    pct = round(score/(totalScore + 0.0),2)
-
-    _sk = sorted(score_commentary.keys())
-    for k in zip( _sk, _sk[1:] + [1.] ):
-        if k[0] <= pct <= k[1]:
-            comment = score_commentary.pop(k[0])
-            comment = ASTERISK and comment + "*" or comment
-            if 'genius' in comment.lower() or 'nytimes' in comment.lower():
-                sleepyprint(comment, 0.1)
-            else:
-                sleepyprint(comment, 0.08) 
-            #break   - was broken when player reached two commentary levels at once
 
 
 def spellCheck(word):
@@ -200,6 +203,7 @@ def savePuzzle(filename, found=False,perform=False):
                 j = json.dump(puzzle, outfile)
 
 foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=0
+scoreDict={}
 letters = centerLetter = ''
 misses = 0
 cheatFlag = spellCheckFlag = False
@@ -210,7 +214,7 @@ if __name__ == '__main__':
 
     try:
             answers, centerLetter, letters, savedwords, performance,ASTERISK = getPuzzle()
-            totalScore = getTotalScore(answers)
+            #totalScore = getTotalScore(answers)
             
             if len(savedwords) > 0:
                 c = input("Saved puzzle exists\nContinue from saved puzzle? Y/N:")
@@ -222,8 +226,9 @@ if __name__ == '__main__':
     except Exception as e:
             #print(f"Something went wrong####   {e}") ####
             answers,centerLetter, letters = getRemotePuzzle()
-            totalScore = getTotalScore(answers)
 
+    totalScore = getTotalScore(answers)
+    scoreDict = { int(totalScore * i): score_commentary[i] for i in score_commentary.keys()}
 
     print(help) 
     printValid()
