@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Thu Dec 31 11:45:19 2020
+# Last Modified: Sat Jan  2 17:28:25 2021
 #
 # Author: samolof
 #
@@ -199,7 +199,7 @@ def savePuzzle(filename, found=False,perform=False):
                     puzzle['performance'] = performance
                 j = json.dump(puzzle, outfile)
 
-foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=None
+foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=0
 letters = centerLetter = ''
 misses = 0
 cheatFlag = spellCheckFlag = False
