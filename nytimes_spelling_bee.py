@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sun Jan  3 11:39:33 2021
+# Last Modified: Mon Jan  4 17:00:26 2021
 #
 # Author: samolof
 #
@@ -164,10 +164,10 @@ def getPuzzle():
                     cl = str(puzzle['centerLetter'])
                     ltrs = strify(puzzle['letters'])
                     fwords = strify(puzzle['foundwords'])
-                    perform = int(puzzle['performance'])
+                    misses = int(puzzle['misses'])
                     asterisk = puzzle['asterisk']
         
-                    return a, cl, ltrs, fwords , perform, asterisk
+                    return a, cl, ltrs, fwords , misses, asterisk
             except json.JSONDecodeError:
                 pass
        
@@ -178,34 +178,43 @@ def printValid():
     print("Valid letters: %s || Required letter: %s" %( "".join(letters), centerLetter))
 
 def didCheat():
-    global performance, cheatFlag
+    global cheatFlag, performance
+    getPerformance()
     cheatFlag=True
-    if misses + len(foundwords) > 0:
-        performance = performance > 0 and performance or len(foundwords)/( len(foundwords) + misses + 0.)  * 100 
+
+
+def getPerformance():
+    global performance
+    if cheatFlag:
+        return performance
+
+    l = len(foundwords)
+    if (misses + l) > 0 :
+        performance= l/( l + misses + 0.) * 100
     else:
-        performance=0
+        performance=0.0
+
+    return performance
+
 
 def printPerformance():
-    global misses, performance
-    if len(foundwords) > 0:
-        performance = performance or len(foundwords)/( len(foundwords) + misses + 0.) * 100
-        sleepyprint('Your performance (hits/misses): %d%%' % (performance))
+    sleepyprint('Your performance (hits/misses): %d%%' % (getPerformance()))
 
 def savePuzzle(filename, found=False,perform=False):
-    global answers, centerLetter, letters, foundwords, performance, ASTERISK
+    #global answers, centerLetter, letters, foundwords, misses, ASTERISK
     with open(filename, 'w') as outfile:
                 puzzle = {'date': today, 'answers': answers, 
                         'centerLetter': centerLetter, 'letters' : letters, 'asterisk': ASTERISK}
                 if found:
                     puzzle['foundwords'] = foundwords
                 if perform:
-                    puzzle['performance'] = performance
+                    puzzle['misses'] = misses
                 j = json.dump(puzzle, outfile)
 
-foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1; performance=0
+foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1
 scoreDict={}
 letters = centerLetter = ''
-misses = 0
+performance= 0.0 ; misses = 0
 cheatFlag = spellCheckFlag = False
 
 
@@ -213,8 +222,7 @@ if __name__ == '__main__':
     print('Loading answers ...')
 
     try:
-            answers, centerLetter, letters, savedwords, performance,ASTERISK = getPuzzle()
-            #totalScore = getTotalScore(answers)
+            answers, centerLetter, letters, savedwords, misses,ASTERISK = getPuzzle()
             
             if len(savedwords) > 0:
                 c = input("Saved puzzle exists\nContinue from saved puzzle? Y/N:")
@@ -224,7 +232,6 @@ if __name__ == '__main__':
                         good(word)
     #except:
     except Exception as e:
-            #print(f"Something went wrong####   {e}") ####
             answers,centerLetter, letters = getRemotePuzzle()
 
     totalScore = getTotalScore(answers)
@@ -237,8 +244,6 @@ if __name__ == '__main__':
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
-        #elif word == 'nytimes*' or word == '*nytimes*':
-        #    print "%d" % (score - math.ceil(totalScore * 0.7))
         elif word == 'genius*' or word == '*genius*':
             print("%d" % (score - math.ceil(totalScore * 0.92)))
         elif word == 'queenbee*' or word == '*queenbee*':
