@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Mon Jan  4 17:00:26 2021
+# Last Modified: Wed Jan  6 12:44:38 2021
 #
 # Author: samolof
 #
@@ -52,7 +52,7 @@ divide_list = lambda l,n:[l[i:i+n] for i in range(0,len(l),n)]
 score_commentary = { 
         .5 : 'Great',
         .7 : 'Amazing',
-        .92: 'Genius!',
+        .92: ' ! Genius ! ',
         1.0: '!!! QUEEN BEE !!!'
 }
 
@@ -99,7 +99,7 @@ def sleepyprint(wd, t=0.045):
 def printComment(comment):
     comment = ASTERISK and comment + "*" or comment
     if 'genius' in comment.lower() or 'nytimes' in comment.lower() :
-        sleepyprint(comment, 0.2)
+        sleepyprint(comment, 0.13)
     else:
         sleepyprint(comment, 0.08) 
 
@@ -130,8 +130,11 @@ def good(word):
         if k[0] <= score < k[1]:
             printComment(scoreDict.pop(k[0]))
         if score == k[1]:
-            scoreDict.pop(k[0])
-            printComment(scoreDict.pop(k[1]))
+            _c=scoreDict.pop(k[0])
+            if k[1] in scoreDict:
+                printComment(scoreDict.pop(k[1]))
+            else:
+                printComment(_c)
 
 
 
@@ -236,6 +239,7 @@ if __name__ == '__main__':
 
     totalScore = getTotalScore(answers)
     scoreDict = { int(totalScore * i): score_commentary[i] for i in score_commentary.keys()}
+
 
     print(help) 
     printValid()
