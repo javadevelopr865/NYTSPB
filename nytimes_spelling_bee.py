@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Wed Jan  6 12:44:38 2021
+# Last Modified: Tue Jan 19 14:17:47 2021
 #
 # Author: samolof
 #
@@ -17,7 +17,7 @@
 #
 ##################################################################
 import re, urllib.request, urllib.parse, urllib.error, random, sys, json
-import datetime, tempfile
+import datetime, tempfile, pytz
 import math
 from collections import Counter
 from string import ascii_lowercase
@@ -27,7 +27,10 @@ webthster_api_key="ad38668c-e027-4292-9ce3-f5f3d2880c72"
 
 webster_url='https://www.dictionaryapi.com/api/v3/references/collegiate/json/'
 
-today = datetime.date.today().isoformat()
+#today = datetime.date.today().isoformat()
+tz=pytz.timezone('America/Los_Angeles')
+today = datetime.datetime.now(tz).date().isoformat()
+
 tempdir = tempfile.gettempdir()
 puz_file = tempdir + '/' + 'puzzle.json'
 local_puz_file = today + '.puzzle.json'
@@ -52,8 +55,8 @@ divide_list = lambda l,n:[l[i:i+n] for i in range(0,len(l),n)]
 score_commentary = { 
         .5 : 'Great',
         .7 : 'Amazing',
-        .92: ' ! Genius ! ',
-        1.0: '!!! QUEEN BEE !!!'
+        .92: 'Genius',
+        1.0: 'QUEEN BEE'
 }
 
 ASTERISK=False
@@ -99,7 +102,9 @@ def sleepyprint(wd, t=0.045):
 def printComment(comment):
     comment = ASTERISK and comment + "*" or comment
     if 'genius' in comment.lower() or 'nytimes' in comment.lower() :
-        sleepyprint(comment, 0.13)
+        sleepyprint('!' +comment + '!', 0.1)
+    elif 'queenbee' in comment.lower():
+        sleepyprint('!!!' +comment + '!!!', 0.12)
     else:
         sleepyprint(comment, 0.08) 
 
