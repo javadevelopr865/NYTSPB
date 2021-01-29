@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Tue Jan 19 14:17:47 2021
+# Last Modified: Tue Jan 26 13:38:49 2021
 #
 # Author: samolof
 #
@@ -39,7 +39,7 @@ help="""Type 0 for letters,
 1 to see words found so far, 1<LETTER> to see <LETTER> words found so far, 
 9 for solution count,
 99 for a breakdown of solution count by letter,
-'genius*' to see points to a 'genius' rating,
+'genius*' or \g to see points to a 'genius' rating,
 88 for a hint,
 8900 to see words not found, 
 8901 to see complete solution,
@@ -192,21 +192,26 @@ def didCheat():
 
 
 def getPerformance():
-    global performance
+    global performance, percentfound
     if cheatFlag:
-        return performance
+        return performance, percentfound
 
     l = len(foundwords)
+
+    percentfound = (l+0.)/len(answers) * 100
+    
     if (misses + l) > 0 :
         performance= l/( l + misses + 0.) * 100
     else:
         performance=0.0
 
-    return performance
+    return performance, percentfound
 
 
 def printPerformance():
-    sleepyprint('Your performance (hits/misses): %d%%' % (getPerformance()))
+    perf, perc = getPerformance()
+    sleepyprint('Your performance (hits/misses): %d%%' % (perf))
+    sleepyprint("You found %d%% of possible words" % (perc))
 
 def savePuzzle(filename, found=False,perform=False):
     #global answers, centerLetter, letters, foundwords, misses, ASTERISK
@@ -222,7 +227,7 @@ def savePuzzle(filename, found=False,perform=False):
 foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1
 scoreDict={}
 letters = centerLetter = ''
-performance= 0.0 ; misses = 0
+performance=0.0 ; misses = 0; percentfound=100.0
 cheatFlag = spellCheckFlag = False
 
 
@@ -253,7 +258,7 @@ if __name__ == '__main__':
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
-        elif word == 'genius*' or word == '*genius*':
+        elif word == 'genius*' or word == '*genius*' or word == '\g':
             print("%d" % (score - math.ceil(totalScore * 0.92)))
         elif word == 'queenbee*' or word == '*queenbee*':
             print("%d" % (score - totalScore))
