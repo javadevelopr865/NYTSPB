@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Tue Jan 26 13:38:49 2021
+# Last Modified: Wed Feb  3 20:02:43 2021
 #
 # Author: samolof
 #
@@ -112,7 +112,7 @@ def printComment(comment):
 
 def good(word):
     
-    global score, totalScore, cheatFlag 
+    global score, totalScore, cheatFlag, comment 
 
 
     foundwords.append(word)
@@ -133,13 +133,18 @@ def good(word):
     _sk = sorted(scoreDict.keys())
     for k in zip( _sk, _sk[1:] + [totalScore] ):
         if k[0] <= score < k[1]:
-            printComment(scoreDict.pop(k[0]))
+            comment = scoreDict.pop(k[0])
+            printComment(comment)
+            #printComment(scoreDict.pop(k[0]))
         if score == k[1]:
-            _c=scoreDict.pop(k[0])
+            comment=scoreDict.pop(k[0])
             if k[1] in scoreDict:
-                printComment(scoreDict.pop(k[1]))
-            else:
-                printComment(_c)
+                comment = scoreDict.pop(k[1])
+                #printComment(scoreDict.pop(k[1]))
+            printComment(comment)
+            #else:
+            #    printComment(_c)
+
 
 
 
@@ -174,8 +179,9 @@ def getPuzzle():
                     fwords = strify(puzzle['foundwords'])
                     misses = int(puzzle['misses'])
                     asterisk = puzzle['asterisk']
+                    comment = puzzle['comment']
         
-                    return a, cl, ltrs, fwords , misses, asterisk
+                    return a, cl, ltrs, fwords , misses, asterisk,comment
             except json.JSONDecodeError:
                 pass
        
@@ -212,12 +218,14 @@ def printPerformance():
     perf, perc = getPerformance()
     sleepyprint('Your performance (hits/misses): %d%%' % (perf))
     sleepyprint("You found %d%% of possible words" % (perc))
+    sleepyprint("Your rank: %s" %(comment))
 
 def savePuzzle(filename, found=False,perform=False):
     #global answers, centerLetter, letters, foundwords, misses, ASTERISK
     with open(filename, 'w') as outfile:
-                puzzle = {'date': today, 'answers': answers, 
-                        'centerLetter': centerLetter, 'letters' : letters, 'asterisk': ASTERISK}
+                puzzle = {'date': today, 'answers': answers,  
+                        'centerLetter': centerLetter, 
+                        'letters' : letters, 'asterisk': ASTERISK, 'comment' : comment }
                 if found:
                     puzzle['foundwords'] = foundwords
                 if perform:
@@ -228,6 +236,7 @@ foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1
 scoreDict={}
 letters = centerLetter = ''
 performance=0.0 ; misses = 0; percentfound=100.0
+comment=''
 cheatFlag = spellCheckFlag = False
 
 
@@ -235,7 +244,7 @@ if __name__ == '__main__':
     print('Loading answers ...')
 
     try:
-            answers, centerLetter, letters, savedwords, misses,ASTERISK = getPuzzle()
+            answers, centerLetter, letters, savedwords, misses,ASTERISK,comment = getPuzzle()
             
             if len(savedwords) > 0:
                 c = input("Saved puzzle exists\nContinue from saved puzzle? Y/N:")
