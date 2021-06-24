@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Thu Jun 24 04:02:37 2021
+# Last Modified: Thu Jun 24 11:25:33 2021
 #
 # Author: samolof
 #
@@ -102,6 +102,11 @@ def sleepyprint(wd, t=0.045):
     print()
 
 
+def getTime(ttime):
+    _f = lambda x: x > 1 and 's' or '' 
+    _t = divmod(ttime, 60)
+    return f" {int(_t[0])} minute{_f(_t[0])} and {math.ceil(_t[1])} second{_f(_t[1])}"
+
 
 def printComment(comment):
     comment = ASTERISK and comment + "*" or comment
@@ -111,6 +116,8 @@ def printComment(comment):
         sleepyprint('!!!' +comment + '!!!', 0.12)
     else:
         sleepyprint(comment, 0.08) 
+        if 'amazing' in comment.lower():
+            print(getTime(time.time() - start_time))
 
 
 
@@ -139,13 +146,11 @@ def good(word):
         if k[0] <= score < k[1]:
             comment = scoreDict.pop(k[0])
             printComment(comment)
-            printTime(time.time() - startTime )
         if score == k[1]:
             comment=scoreDict.pop(k[0])
             if k[1] in scoreDict:
                 comment = scoreDict.pop(k[1])
             printComment(comment)
-            printTime(time.time() - startTime )
 
 
 
@@ -234,10 +239,6 @@ def savePuzzle(filename, found=False,perform=False):
                     puzzle['misses'] = misses
                 j = json.dump(puzzle, outfile)
 
-def printTime(ttime):
-    _f = lambda x: x > 1 and 's' or '' 
-    _t = devmod(ttime, 60)
-    print(f" {_t[0]} minute{_f(_t[0])} and {_t[1]} second{_f(_t[1])}")
 
 
 foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1
