@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Wed Feb  3 20:02:43 2021
+# Last Modified: Thu Jun 24 04:02:37 2021
 #
 # Author: samolof
 #
@@ -14,7 +14,11 @@
 #   Url fetch message and timeout
 #   Flashing 'Pangram' message (curses?)
 #   Saved Statistics
-#
+# Game TODO:
+#   -Improve hints feature to show outstanding words by letter and letter count e.g d - d5,d3   
+#   -Add game modes:
+#       - GN4 (Genius no 4 letter words)
+#       
 ##################################################################
 import re, urllib.request, urllib.parse, urllib.error, random, sys, json
 import datetime, tempfile, pytz
@@ -135,15 +139,13 @@ def good(word):
         if k[0] <= score < k[1]:
             comment = scoreDict.pop(k[0])
             printComment(comment)
-            #printComment(scoreDict.pop(k[0]))
+            printTime(time.time() - startTime )
         if score == k[1]:
             comment=scoreDict.pop(k[0])
             if k[1] in scoreDict:
                 comment = scoreDict.pop(k[1])
-                #printComment(scoreDict.pop(k[1]))
             printComment(comment)
-            #else:
-            #    printComment(_c)
+            printTime(time.time() - startTime )
 
 
 
@@ -232,6 +234,12 @@ def savePuzzle(filename, found=False,perform=False):
                     puzzle['misses'] = misses
                 j = json.dump(puzzle, outfile)
 
+def printTime(ttime):
+    _f = lambda x: x > 1 and 's' or '' 
+    _t = devmod(ttime, 60)
+    print(f" {_t[0]} minute{_f(_t[0])} and {_t[1]} second{_f(_t[1])}")
+
+
 foundwords = [] ;answers = [] ;pangrams=[] ;score=0; totalScore=1
 scoreDict={}
 letters = centerLetter = ''
@@ -262,6 +270,10 @@ if __name__ == '__main__':
 
     print(help) 
     printValid()
+
+    import time
+    start_time = time.time()
+
     while len(foundwords) != len(answers):
         word = input('>>')
         word = word.strip().lower()
