@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Thu Jun 24 11:25:33 2021
+# Last Modified: Sat Jun 26 11:31:12 2021
 #
 # Author: samolof
 #
@@ -22,6 +22,7 @@
 ##################################################################
 import re, urllib.request, urllib.parse, urllib.error, random, sys, json
 import datetime, tempfile, pytz
+import time
 import math
 from collections import Counter
 from string import ascii_lowercase
@@ -102,7 +103,7 @@ def sleepyprint(wd, t=0.045):
     print()
 
 
-def getTime(ttime):
+def getTimeComment(ttime):
     _f = lambda x: x > 1 and 's' or '' 
     _t = divmod(ttime, 60)
     return f" {int(_t[0])} minute{_f(_t[0])} and {math.ceil(_t[1])} second{_f(_t[1])}"
@@ -117,7 +118,8 @@ def printComment(comment):
     else:
         sleepyprint(comment, 0.08) 
         if 'amazing' in comment.lower():
-            print(getTime(time.time() - start_time))
+
+            print(getTimeComment(time.time() - start_time + elapsedTime))
 
 
 
@@ -187,8 +189,9 @@ def getPuzzle():
                     misses = int(puzzle['misses'])
                     asterisk = puzzle['asterisk']
                     comment = puzzle['comment']
+                    elapsedTime = float(puzzle['elapsedTime'])
         
-                    return a, cl, ltrs, fwords , misses, asterisk,comment
+                    return a, cl, ltrs, fwords , misses, asterisk,comment,elapsedTime
             except json.JSONDecodeError:
                 pass
        
@@ -229,10 +232,16 @@ def printPerformance():
 
 def savePuzzle(filename, found=False,perform=False):
     #global answers, centerLetter, letters, foundwords, misses, ASTERISK
+    global elapsedTime
+    elapsedTime = time.time() - start_time + elapsedTime
     with open(filename, 'w') as outfile:
                 puzzle = {'date': today, 'answers': answers,  
                         'centerLetter': centerLetter, 
-                        'letters' : letters, 'asterisk': ASTERISK, 'comment' : comment }
+                        'letters' : letters, 
+                        'asterisk': ASTERISK, 
+                        'comment' : comment, 
+                        'elapsedTime' : elapsedTime
+                        }
                 if found:
                     puzzle['foundwords'] = foundwords
                 if perform:
@@ -247,13 +256,13 @@ letters = centerLetter = ''
 performance=0.0 ; misses = 0; percentfound=100.0
 comment=''
 cheatFlag = spellCheckFlag = False
-
+elapsedTime=0.0
 
 if __name__ == '__main__':
     print('Loading answers ...')
 
     try:
-            answers, centerLetter, letters, savedwords, misses,ASTERISK,comment = getPuzzle()
+            answers, centerLetter, letters, savedwords, misses,ASTERISK,comment,elapsedTime = getPuzzle()
             
             if len(savedwords) > 0:
                 c = input("Saved puzzle exists\nContinue from saved puzzle? Y/N:")
@@ -272,7 +281,6 @@ if __name__ == '__main__':
     print(help) 
     printValid()
 
-    import time
     start_time = time.time()
 
     while len(foundwords) != len(answers):
@@ -282,7 +290,7 @@ if __name__ == '__main__':
             good(word)
         elif word == 'genius*' or word == '*genius*' or word == '\g':
             print("%d" % (score - math.ceil(totalScore * 0.92)))
-        elif word == 'queenbee*' or word == '*queenbee*':
+        elif word == 'queenbee*' or word == '*queenbee*' or word == '\q':
             print("%d" % (score - totalScore))
         elif word.startswith('*'):
             word = word.split('*')[1]
@@ -389,4 +397,5 @@ if __name__ == '__main__':
     printPerformance() 
     print('Pangrams: ', pangrams)
     print(answers)
+    print("Total time: %s" % getTimeComment(time.time() - start_time + elapsedTime))
 
