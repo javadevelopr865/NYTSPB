@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Jun 26 11:31:12 2021
+# Last Modified: Sat Jun 26 11:52:48 2021
 #
 # Author: samolof
 #
@@ -44,7 +44,7 @@ help="""Type 0 for letters,
 1 to see words found so far, 1<LETTER> to see <LETTER> words found so far, 
 9 for solution count,
 99 for a breakdown of solution count by letter,
-'genius*' or \g to see points to a 'genius' rating,
+\x to see points to next rating,
 88 for a hint,
 8900 to see words not found, 
 8901 to see complete solution,
@@ -63,6 +63,7 @@ score_commentary = {
         .92: 'Genius',
         1.0: 'QUEEN BEE'
 }
+score_commentary_inv= {v:k for k,v in score_commentary.items()}
 
 ASTERISK=False
 
@@ -283,11 +284,19 @@ if __name__ == '__main__':
 
     start_time = time.time()
 
+
     while len(foundwords) != len(answers):
         word = input('>>')
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
+        elif word == '\x':
+            _x= totalScore
+            for sck in scoreDict.keys():
+                if score < sck:
+                    _x = sck
+                    break
+            print("%d" % (score - _x))
         elif word == 'genius*' or word == '*genius*' or word == '\g':
             print("%d" % (score - math.ceil(totalScore * 0.92)))
         elif word == 'queenbee*' or word == '*queenbee*' or word == '\q':
