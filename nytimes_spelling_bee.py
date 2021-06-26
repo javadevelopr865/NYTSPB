@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Jun 26 11:52:48 2021
+# Last Modified: Sat Jun 26 12:18:09 2021
 #
 # Author: samolof
 #
@@ -44,7 +44,7 @@ help="""Type 0 for letters,
 1 to see words found so far, 1<LETTER> to see <LETTER> words found so far, 
 9 for solution count,
 99 for a breakdown of solution count by letter,
-\x to see points to next rating,
+\g to see points to next rating,
 88 for a hint,
 8900 to see words not found, 
 8901 to see complete solution,
@@ -290,16 +290,16 @@ if __name__ == '__main__':
         word = word.strip().lower()
         if word in answers and word not in foundwords:
             good(word)
-        elif word == '\x':
+        elif word == '\g':
             _x= totalScore
             for sck in scoreDict.keys():
                 if score < sck:
                     _x = sck
                     break
             print("%d" % (score - _x))
-        elif word == 'genius*' or word == '*genius*' or word == '\g':
-            print("%d" % (score - math.ceil(totalScore * 0.92)))
-        elif word == 'queenbee*' or word == '*queenbee*' or word == '\q':
+        #elif word == 'genius*' or word == '*genius*' or word == '\g':
+        #    print("%d" % (score - math.ceil(totalScore * 0.92)))
+        elif word == 'queenbee*' or word == '*queenbee*':
             print("%d" % (score - totalScore))
         elif word.startswith('*'):
             word = word.split('*')[1]
