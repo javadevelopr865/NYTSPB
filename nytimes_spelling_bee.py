@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Sat Jun 26 12:18:09 2021
+# Last Modified: Wed Jan  5 00:33:33 2022
 #
 # Author: samolof
 #
@@ -21,7 +21,7 @@
 #       
 ##################################################################
 import re, urllib.request, urllib.parse, urllib.error, random, sys, json
-import datetime, tempfile, pytz
+import datetime, tempfile, zoneinfo #, pytz
 import time
 import math
 from collections import Counter
@@ -33,7 +33,7 @@ webthster_api_key="ad38668c-e027-4292-9ce3-f5f3d2880c72"
 webster_url='https://www.dictionaryapi.com/api/v3/references/collegiate/json/'
 
 #today = datetime.date.today().isoformat()
-tz=pytz.timezone('America/Los_Angeles')
+tz=zoneinfo.ZoneInfo('America/Los_Angeles')
 today = datetime.datetime.now(tz).date().isoformat()
 
 tempdir = tempfile.gettempdir()
@@ -228,8 +228,8 @@ def getPerformance():
 def printPerformance():
     perf, perc = getPerformance()
     sleepyprint('Your performance (hits/misses): %d%%' % (perf))
-    sleepyprint("You found %d%% of possible words" % (perc))
-    sleepyprint("Your rank: %s" %(comment))
+    sleepyprint("You found %d%% of possible words: %s" % (perc,comment))
+    #sleepyprint("Your rank: %s" %(comment))
 
 def savePuzzle(filename, found=False,perform=False):
     #global answers, centerLetter, letters, foundwords, misses, ASTERISK
