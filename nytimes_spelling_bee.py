@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Wed Jan  5 00:33:33 2022
+# Last Modified: Wed Jan  5 23:35:51 2022
 #
 # Author: samolof
 #
@@ -342,7 +342,10 @@ if __name__ == '__main__':
 
         elif word == '8900':
             didCheat() 
-            print([w for w in answers if w not in foundwords])
+            ltrs = sorted(letters)
+            wds = [ [w for w in answers if w not in foundwords and w.startswith(l) ] for l in ltrs]
+            for wlst in wds:
+                sleepyprint("[" + ", ".join(wlst) + "]", 0.025)
         elif word == '8901':
             didCheat()
             print(answers)
