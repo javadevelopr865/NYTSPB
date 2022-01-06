@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Wed Jan  5 23:35:51 2022
+# Last Modified: Thu Jan  6 14:57:36 2022
 #
 # Author: samolof
 #
@@ -85,6 +85,12 @@ def _edit(word):
     inserts = [L + c + R for L,R in splits for c in ascii_lowercase]
     return set(deletes + transposes + replaces + inserts)
 
+from typing import Callable, Any
+def partition(l: list, kf: Callable, sort=False):
+    klist = set([kf(x) for x in l])
+    if sort: klist = sorted(klist)
+    res = [[itm for itm in l if kf(itm) == k] for k in klist]
+    return [ r for r in res if len(r) > 0]
 
 def getTotalScore(lst):
     return sum([getScore(x) for x in lst])
@@ -96,7 +102,7 @@ def getScore(word):
     return tmpscore
 
 import time
-def sleepyprint(wd, t=0.045):
+def sleepyprint(wd, t=0.025):
     for w in wd:
        sys.stdout.write(w)
        sys.stdout.flush()
@@ -344,6 +350,7 @@ if __name__ == '__main__':
             didCheat() 
             ltrs = sorted(letters)
             wds = [ [w for w in answers if w not in foundwords and w.startswith(l) ] for l in ltrs]
+            wds = [wl for wl in wds if len(wl) > 0]
             for wlst in wds:
                 sleepyprint("[" + ", ".join(wlst) + "]", 0.025)
         elif word == '8901':
