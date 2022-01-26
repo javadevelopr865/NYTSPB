@@ -3,7 +3,7 @@
 #
 # Date Created: Oct 21,2019
 #
-# Last Modified: Thu Jan  6 14:57:36 2022
+# Last Modified: Wed Jan 26 17:24:21 2022
 #
 # Author: samolof
 #
@@ -102,7 +102,7 @@ def getScore(word):
     return tmpscore
 
 import time
-def sleepyprint(wd, t=0.025):
+def sleepyprint(wd, t=0.030):
     for w in wd:
        sys.stdout.write(w)
        sys.stdout.flush()
@@ -115,9 +115,10 @@ def getTimeComment(ttime):
     _t = divmod(ttime, 60)
     return f" {int(_t[0])} minute{_f(_t[0])} and {math.ceil(_t[1])} second{_f(_t[1])}"
 
+def _comment(comment):
+    return  ASTERISK and comment + "*" or comment
 
 def printComment(comment):
-    comment = ASTERISK and comment + "*" or comment
     if 'genius' in comment.lower() or 'nytimes' in comment.lower() :
         sleepyprint('!' +comment + '!', 0.1)
     elif 'queenbee' in comment.lower():
@@ -140,7 +141,7 @@ def good(word):
     
     if len(set(word)) == 7:
         pangrams.append(word)
-        sleepyprint('Pangram!')
+        sleepyprint('Pangram!', 0.08)
     
     if cheatFlag:
         print("%d, Total:%d" % (tmpscore,score))
@@ -153,12 +154,12 @@ def good(word):
     _sk = sorted(scoreDict.keys())
     for k in zip( _sk, _sk[1:] + [totalScore] ):
         if k[0] <= score < k[1]:
-            comment = scoreDict.pop(k[0])
+            comment = _comment(scoreDict.pop(k[0]))
             printComment(comment)
         if score == k[1]:
             comment=scoreDict.pop(k[0])
             if k[1] in scoreDict:
-                comment = scoreDict.pop(k[1])
+                comment = _comment(scoreDict.pop(k[1]))
             printComment(comment)
 
 
@@ -303,8 +304,6 @@ if __name__ == '__main__':
                     _x = sck
                     break
             print("%d" % (score - _x))
-        #elif word == 'genius*' or word == '*genius*' or word == '\g':
-        #    print("%d" % (score - math.ceil(totalScore * 0.92)))
         elif word == 'queenbee*' or word == '*queenbee*':
             print("%d" % (score - totalScore))
         elif word.startswith('*'):
@@ -352,7 +351,7 @@ if __name__ == '__main__':
             wds = [ [w for w in answers if w not in foundwords and w.startswith(l) ] for l in ltrs]
             wds = [wl for wl in wds if len(wl) > 0]
             for wlst in wds:
-                sleepyprint("[" + ", ".join(wlst) + "]", 0.025)
+                sleepyprint("[" + ", ".join(wlst) + "]")
         elif word == '8901':
             didCheat()
             print(answers)
@@ -363,7 +362,6 @@ if __name__ == '__main__':
                 wdl = [w for w in wdl if w.startswith(_l)]
                 
             if wdl == []: continue
-            #wd=random.choice([w for w in answers if w not in foundwords])
             wd = random.choice(wdl)
             indices = (len(wd) < 6 and (0,3)) or (len(wd) == 6 and (1,4)) or (len(wd) == 7 and (2,5) or (2,7))
             indices = bool(random.getrandbits(2)) and indices or (0, random.randrange(3, len(wd))) 
@@ -371,8 +369,11 @@ if __name__ == '__main__':
 
         elif word == 'h':
             print(help)
-        elif word == 'r': foundwords = []; totalScore = 1
-        #elif word == 't': print "Total possible score %d" % getTotalScore(answers)
+        elif word == 'r':
+            c=input("Restart? (Y/N):")
+            if c.strip().lower() == 'y':
+                print('Puzzle reset')
+                foundwords = []; totalScore = 1
         elif word == '%%': 
             spellCheckFlag = not spellCheckFlag
             if spellCheckFlag:
